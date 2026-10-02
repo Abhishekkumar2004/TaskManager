@@ -62,6 +62,12 @@ async function getTask(req, res) {
         const userId = req.user.userId;
         const taskId = req.params.id;
 
+        if (!mongoose.Types.ObjectId.isValid(taskId)) {
+            return res.status(400).json({
+                message: "Invalid task ID."
+            });
+        }
+
         const userTask = await taskModel.findOne({
             _id: taskId,
             user: userId
@@ -92,6 +98,12 @@ async function updateTask(req, res) {
     try {
         const userId = req.user.userId;
         const taskId = req.params.id;
+
+        if (!mongoose.Types.ObjectId.isValid(taskId)) {
+            return res.status(400).json({
+                message: "Invalid task ID."
+            });
+        }
 
         const { title, description, completed } = req.body;
 
@@ -136,6 +148,12 @@ async function deleteTask(req, res) {
     try {
         const userId = req.user.userId;
         const taskId = req.params.id;
+
+        if (!mongoose.Types.ObjectId.isValid(taskId)) {
+            return res.status(400).json({
+                message: "Invalid task ID."
+            });
+        }
 
         const task = await taskModel.findOneAndDelete({
             _id: taskId,

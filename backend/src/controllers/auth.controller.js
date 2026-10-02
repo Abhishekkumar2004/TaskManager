@@ -2,11 +2,10 @@ const userModel = require('../models/user.model');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-
 // Register user
 async function registerUser(req, res) {
     try {
-        const { name, email, password, role = "user" } = req.body;
+        const { name, email, password } = req.body;
 
         const isAlreadyExists = await userModel.findOne({
             $or: [{ name }, { email }]
@@ -23,13 +22,16 @@ async function registerUser(req, res) {
         const user = await userModel.create({
             name,
             email,
-            password: hashedPassword,
-            role
+            password: hashedPassword
         });
 
         res.status(201).json({
             message: "User registered successfully",
-            user
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email
+            }
         });
 
     } catch (err) {
@@ -78,7 +80,6 @@ async function loginUser(req, res) {
             process.env.JWT_SECRET
         );
 
-        // for production, set secure: true and sameSite: "none" for cross-site cookies
         res.cookie("token", token, {
             httpOnly: true,
             secure: true,
@@ -91,14 +92,37 @@ async function loginUser(req, res) {
             user: {
                 id: user._id,
                 name: user.name,
-                email: user.email,
-                role: user.role
+                email: user.email
             }
         });
 
     } catch (err) {
+        console.error("Login error:", err);
+
         res.status(500).json({
             message: "Failed to login user.",
+            error: err.message
+        });
+    }
+}
+
+
+// Logout user
+async function logoutUser(req, res) {
+    try {
+        res.clearCookie("token", {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none"
+        });
+
+        res.status(200).json({
+            message: "User logged out successfully."
+        });
+
+    } catch (err) {
+        res.status(500).json({
+            message: "Failed to logout user.",
             error: err.message
         });
     }
@@ -135,5 +159,6 @@ async function getMe(req, res) {
 module.exports = {
     registerUser,
     loginUser,
+    logoutUser,
     getMe
 };

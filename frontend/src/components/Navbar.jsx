@@ -9,6 +9,7 @@ import {
 import toast from 'react-hot-toast';
 
 import useAuth from '../hooks/useAuth';
+import { logoutUser } from '../services/authService';
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -28,12 +29,20 @@ const Navbar = () => {
          : 'text-slate-600 hover:text-blue-600'
      }`;
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
 
-    toast.success('Logged out successfully! 👋');
+      logout();
 
-    navigate('/log-in');
+      toast.success('Logged out successfully! 👋');
+
+      navigate('/log-in');
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || 'Failed to logout.'
+      );
+    }
   };
 
   return (

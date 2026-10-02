@@ -68,7 +68,6 @@ const Register = () => {
       }, 800);
 
     } catch (error) {
-      console.error(error);
 
       const message =
         error.response?.data?.message ||
