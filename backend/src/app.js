@@ -13,8 +13,8 @@ app.use(cookieParser());
 
 app.use(
   cors({
-     origin: "https://task-manager-exex.vercel.app",
-  credentials: true
+    origin: 'https://task-manager-exex.vercel.app',
+    credentials: true,
   })
 );
 
