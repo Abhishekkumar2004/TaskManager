@@ -1,72 +1,51 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import {
   ArrowLeft,
-  CheckCircle2,
+  Check,
   Circle,
+  ClipboardCheck,
   CalendarDays,
   Clock,
-  ClipboardCheck,
 } from 'lucide-react';
 
 import toast from 'react-hot-toast';
 
-import { getTask } from '../services/taskService';
+import { getTasks } from '../services/taskService';
 import Loading from '../components/Loading';
 
 const TaskDetails = () => {
-  const { id } = useParams();
   const navigate = useNavigate();
 
-  const [task, setTask] = useState(null);
+  const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadTask = async () => {
+    const loadTasks = async () => {
       try {
-        const data = await getTask(id);
+        const data = await getTasks();
 
-        setTask(data);
+        // Show maximum 4 tasks
+        setTasks(data.slice(0, 4));
       } catch (error) {
         console.error(error);
 
         toast.error(
           error.response?.data?.message ||
-            'Failed to load task.'
+            'Failed to load tasks.'
         );
-
-        navigate('/');
       } finally {
         setLoading(false);
       }
     };
 
-    loadTask();
-  }, [id, navigate]);
+    loadTasks();
+  }, []);
 
   if (loading) {
     return <Loading />;
   }
-
-  if (!task) {
-    return null;
-  }
-
-  const createdDate = task.createdAt
-    ? new Date(task.createdAt).toLocaleDateString('en-IN', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-      })
-    : 'Date unavailable';
-
-  const createdTime = task.createdAt
-    ? new Date(task.createdAt).toLocaleTimeString('en-IN', {
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    : '';
 
   return (
     <div
@@ -97,8 +76,11 @@ const TaskDetails = () => {
                    pointer-events-none"
       />
 
-      <main className="relative z-10 max-w-3xl mx-auto">
-
+      <main
+        className="relative z-10
+                   max-w-6xl
+                   mx-auto"
+      >
         {/* Back Button */}
         <button
           type="button"
@@ -119,206 +101,260 @@ const TaskDetails = () => {
           Back to Dashboard
         </button>
 
-        {/* Task Card */}
-        <div
-          className={`relative overflow-hidden
-                      bg-white/90
-                      backdrop-blur-xl
-                      rounded-3xl
-                      border border-white
-                      shadow-xl
-                      p-6 sm:p-8
-                      ${
-                        task.completed
-                          ? 'border-green-100'
-                          : 'border-blue-100'
-                      }`}
-        >
-          {/* Side gradient */}
+        {/* Page Header */}
+        <div className="mb-8">
           <div
-            className={`absolute left-0 top-0 bottom-0 w-1.5 ${
-              task.completed
-                ? 'bg-gradient-to-b from-green-400 to-emerald-600'
-                : 'bg-gradient-to-b from-blue-500 via-indigo-500 to-purple-600'
-            }`}
-          />
+            className="inline-flex items-center gap-2
+                       px-3 py-1.5
+                       rounded-full
+                       bg-blue-100
+                       text-blue-600"
+          >
+            <ClipboardCheck size={15} />
 
-          {/* Task Header */}
-          <div className="flex items-start gap-4">
-
-            {/* Status Icon */}
-            <div
-              className={`w-12 h-12 shrink-0
-                          rounded-2xl
-                          flex items-center justify-center ${
-                            task.completed
-                              ? 'bg-green-100 text-green-600'
-                              : 'bg-blue-100 text-blue-600'
-                          }`}
-            >
-              {task.completed ? (
-                <CheckCircle2 size={25} />
-              ) : (
-                <Circle size={25} />
-              )}
-            </div>
-
-            {/* Title */}
-            <div className="flex-1 min-w-0">
-
-              <div className="flex items-center gap-2">
-                <ClipboardCheck
-                  size={18}
-                  className={
-                    task.completed
-                      ? 'text-green-500'
-                      : 'text-blue-500'
-                  }
-                />
-
-                <span className="text-sm font-medium text-slate-400">
-                  Task Details
-                </span>
-              </div>
-
-              <h1
-                className={`mt-2
-                            text-2xl sm:text-3xl
-                            font-bold
-                            break-words ${
-                              task.completed
-                                ? 'text-slate-500 line-through'
-                                : 'text-slate-800'
-                            }`}
-              >
-                {task.title}
-              </h1>
-
-              {/* Status */}
-              <span
-                className={`inline-flex items-center gap-1.5
-                            mt-4
-                            px-3 py-1.5
-                            rounded-full
-                            text-xs font-semibold ${
-                              task.completed
-                                ? 'bg-green-100 text-green-700'
-                                : 'bg-blue-100 text-blue-700'
-                            }`}
-              >
-                <span
-                  className={`w-1.5 h-1.5 rounded-full ${
-                    task.completed
-                      ? 'bg-green-500'
-                      : 'bg-blue-500'
-                  }`}
-                />
-
-                {task.completed
-                  ? 'Completed'
-                  : 'Pending'}
-              </span>
-            </div>
+            <span className="text-xs font-semibold">
+              Task Details
+            </span>
           </div>
 
-          {/* Description */}
-          <div className="mt-8">
-            <h2
-              className="text-sm
-                         font-semibold
-                         text-slate-700
-                         mb-3"
-            >
-              Description
+          <h1
+            className="mt-3
+                       text-3xl sm:text-4xl
+                       font-extrabold
+                       bg-gradient-to-r
+                       from-slate-800
+                       via-blue-700
+                       to-indigo-700
+                       bg-clip-text
+                       text-transparent"
+          >
+            Your Tasks
+          </h1>
+
+          <p className="text-slate-500 mt-2">
+            View your latest tasks and their details.
+          </p>
+        </div>
+
+        {/* Empty State */}
+        {tasks.length === 0 && (
+          <div
+            className="bg-white/90
+                       backdrop-blur-xl
+                       rounded-3xl
+                       border border-white
+                       shadow-xl
+                       p-10
+                       text-center"
+          >
+            <ClipboardCheck
+              size={40}
+              className="mx-auto text-slate-300"
+            />
+
+            <h2 className="mt-4 text-xl font-semibold text-slate-700">
+              No tasks available
             </h2>
 
-            <div
-              className="rounded-2xl
-                         bg-slate-50
-                         border border-slate-100
-                         p-5"
-            >
-              <p
-                className="text-sm sm:text-base
-                           leading-7
-                           text-slate-600
-                           break-words"
-              >
-                {task.description ||
-                  'No description added.'}
-              </p>
-            </div>
+            <p className="mt-2 text-sm text-slate-500">
+              Create a task from the dashboard to see it here.
+            </p>
           </div>
+        )}
 
-          {/* Task Information */}
+        {/* Task Cards */}
+        {tasks.length > 0 && (
           <div
-            className="mt-8
-                       pt-6
-                       border-t border-slate-100
-                       grid grid-cols-1 sm:grid-cols-2
-                       gap-4"
+            className="grid
+                       grid-cols-1
+                       md:grid-cols-2
+                       gap-5"
           >
-            {/* Created Date */}
-            <div
-              className="flex items-center gap-3
-                         p-4
-                         rounded-2xl
-                         bg-slate-50
-                         border border-slate-100"
-            >
-              <div
-                className="w-10 h-10
-                           rounded-xl
-                           bg-blue-100
-                           text-blue-600
-                           flex items-center justify-center
-                           shrink-0"
-              >
-                <CalendarDays size={18} />
-              </div>
+            {tasks.map((task) => {
+              const createdDate = task.createdAt
+                ? new Date(
+                    task.createdAt
+                  ).toLocaleDateString('en-IN', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                  })
+                : 'Date unavailable';
 
-              <div>
-                <p className="text-xs text-slate-400">
-                  Created Date
-                </p>
+              const createdTime = task.createdAt
+                ? new Date(
+                    task.createdAt
+                  ).toLocaleTimeString('en-IN', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
+                : '';
 
-                <p className="text-sm font-semibold text-slate-700 mt-0.5">
-                  {createdDate}
-                </p>
-              </div>
-            </div>
+              return (
+                <div
+                  key={task._id}
+                  className={`group relative overflow-hidden
+                              flex flex-col
+                              min-h-[250px]
+                              p-5
+                              rounded-2xl
+                              border
+                              bg-white/90
+                              backdrop-blur-xl
+                              shadow-lg
+                              transition-all duration-300
+                              hover:-translate-y-1
+                              hover:shadow-xl
+                              ${
+                                task.completed
+                                  ? 'border-green-200'
+                                  : 'border-slate-200 hover:border-blue-200'
+                              }`}
+                >
+                  {/* Side Gradient */}
+                  <div
+                    className={`absolute left-0 top-0 bottom-0 w-1 ${
+                      task.completed
+                        ? 'bg-gradient-to-b from-green-400 to-emerald-600'
+                        : 'bg-gradient-to-b from-blue-500 via-indigo-500 to-purple-600'
+                    }`}
+                  />
 
-            {/* Created Time */}
-            <div
-              className="flex items-center gap-3
-                         p-4
-                         rounded-2xl
-                         bg-slate-50
-                         border border-slate-100"
-            >
-              <div
-                className="w-10 h-10
-                           rounded-xl
-                           bg-indigo-100
-                           text-indigo-600
-                           flex items-center justify-center
-                           shrink-0"
-              >
-                <Clock size={18} />
-              </div>
+                  {/* Header */}
+                  <div className="flex items-start gap-3">
+                    {/* Status Icon */}
+                    <div
+                      className={`w-10 h-10
+                                  shrink-0
+                                  rounded-xl
+                                  flex items-center justify-center ${
+                                    task.completed
+                                      ? 'bg-green-100 text-green-600'
+                                      : 'bg-blue-100 text-blue-600'
+                                  }`}
+                    >
+                      {task.completed ? (
+                        <Check size={19} strokeWidth={2.5} />
+                      ) : (
+                        <Circle size={18} />
+                      )}
+                    </div>
 
-              <div>
-                <p className="text-xs text-slate-400">
-                  Created Time
-                </p>
+                    {/* Title */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <ClipboardCheck
+                          size={16}
+                          className={
+                            task.completed
+                              ? 'text-green-500 shrink-0'
+                              : 'text-blue-500 shrink-0'
+                          }
+                        />
 
-                <p className="text-sm font-semibold text-slate-700 mt-0.5">
-                  {createdTime || 'Time unavailable'}
-                </p>
-              </div>
-            </div>
+                        <h2
+                          className={`font-semibold
+                                      text-base
+                                      leading-6
+                                      break-words ${
+                                        task.completed
+                                          ? 'text-slate-400 line-through'
+                                          : 'text-slate-800'
+                                      }`}
+                        >
+                          {task.title}
+                        </h2>
+                      </div>
+
+                      {/* Status */}
+                      <span
+                        className={`inline-flex
+                                    items-center
+                                    gap-1.5
+                                    mt-3
+                                    px-2.5 py-1
+                                    rounded-full
+                                    text-xs
+                                    font-semibold ${
+                                      task.completed
+                                        ? 'bg-green-100 text-green-700'
+                                        : 'bg-blue-100 text-blue-700'
+                                    }`}
+                      >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            task.completed
+                              ? 'bg-green-500'
+                              : 'bg-blue-500'
+                          }`}
+                        />
+
+                        {task.completed
+                          ? 'Completed'
+                          : 'Pending'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <div className="mt-5">
+                    <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                      Description
+                    </h3>
+
+                    <p
+                      className={`mt-2
+                                  text-sm
+                                  leading-6
+                                  line-clamp-3 ${
+                                    task.completed
+                                      ? 'text-slate-400'
+                                      : 'text-slate-600'
+                                  }`}
+                    >
+                      {task.description ||
+                        'No description added.'}
+                    </p>
+                  </div>
+
+                  {/* Date & Time */}
+                  <div
+                    className="mt-auto
+                               pt-5
+                               border-t
+                               border-slate-100
+                               flex
+                               flex-wrap
+                               items-center
+                               gap-x-4
+                               gap-y-2
+                               text-xs
+                               text-slate-400"
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <CalendarDays size={14} />
+                      <span>{createdDate}</span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      <Clock size={14} />
+                      <span>{createdTime}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-        </div>
+        )}
+
+        {/* More Tasks Notice */}
+        {tasks.length === 4 && (
+          <div className="mt-6 text-center">
+            <p className="text-sm text-slate-400">
+              Showing your latest 4 tasks.
+            </p>
+          </div>
+        )}
       </main>
     </div>
   );
