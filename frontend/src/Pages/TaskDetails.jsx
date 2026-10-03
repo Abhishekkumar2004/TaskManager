@@ -26,8 +26,8 @@ const TaskDetails = () => {
       try {
         const data = await getTasks();
 
-        // Show maximum 4 tasks
-        setTasks(data.slice(0, 4));
+        // Get all tasks belonging to the logged-in user
+        setTasks(data);
       } catch (error) {
         console.error(error);
 
@@ -132,7 +132,7 @@ const TaskDetails = () => {
           </h1>
 
           <p className="text-slate-500 mt-2">
-            View your latest tasks and their details.
+            View all your tasks and their details.
           </p>
         </div>
 
@@ -152,17 +152,26 @@ const TaskDetails = () => {
               className="mx-auto text-slate-300"
             />
 
-            <h2 className="mt-4 text-xl font-semibold text-slate-700">
+            <h2
+              className="mt-4
+                         text-xl
+                         font-semibold
+                         text-slate-700"
+            >
               No tasks available
             </h2>
 
-            <p className="mt-2 text-sm text-slate-500">
+            <p
+              className="mt-2
+                         text-sm
+                         text-slate-500"
+            >
               Create a task from the dashboard to see it here.
             </p>
           </div>
         )}
 
-        {/* Task Cards */}
+        {/* All Task Cards */}
         {tasks.length > 0 && (
           <div
             className="grid
@@ -220,8 +229,9 @@ const TaskDetails = () => {
                     }`}
                   />
 
-                  {/* Header */}
+                  {/* Task Header */}
                   <div className="flex items-start gap-3">
+
                     {/* Status Icon */}
                     <div
                       className={`w-10 h-10
@@ -234,7 +244,10 @@ const TaskDetails = () => {
                                   }`}
                     >
                       {task.completed ? (
-                        <Check size={19} strokeWidth={2.5} />
+                        <Check
+                          size={19}
+                          strokeWidth={2.5}
+                        />
                       ) : (
                         <Circle size={18} />
                       )}
@@ -242,13 +255,13 @@ const TaskDetails = () => {
 
                     {/* Title */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-start gap-2">
                         <ClipboardCheck
                           size={16}
                           className={
                             task.completed
-                              ? 'text-green-500 shrink-0'
-                              : 'text-blue-500 shrink-0'
+                              ? 'text-green-500 shrink-0 mt-1'
+                              : 'text-blue-500 shrink-0 mt-1'
                           }
                         />
 
@@ -282,11 +295,12 @@ const TaskDetails = () => {
                                     }`}
                       >
                         <span
-                          className={`w-1.5 h-1.5 rounded-full ${
-                            task.completed
-                              ? 'bg-green-500'
-                              : 'bg-blue-500'
-                          }`}
+                          className={`w-1.5 h-1.5
+                                      rounded-full ${
+                                        task.completed
+                                          ? 'bg-green-500'
+                                          : 'bg-blue-500'
+                                      }`}
                         />
 
                         {task.completed
@@ -298,7 +312,13 @@ const TaskDetails = () => {
 
                   {/* Description */}
                   <div className="mt-5">
-                    <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                    <h3
+                      className="text-xs
+                                 font-semibold
+                                 text-slate-400
+                                 uppercase
+                                 tracking-wide"
+                    >
                       Description
                     </h3>
 
@@ -317,7 +337,7 @@ const TaskDetails = () => {
                     </p>
                   </div>
 
-                  {/* Date & Time */}
+                  {/* Created Date & Time */}
                   <div
                     className="mt-auto
                                pt-5
@@ -344,15 +364,6 @@ const TaskDetails = () => {
                 </div>
               );
             })}
-          </div>
-        )}
-
-        {/* More Tasks Notice */}
-        {tasks.length === 4 && (
-          <div className="mt-6 text-center">
-            <p className="text-sm text-slate-400">
-              Showing your latest 4 tasks.
-            </p>
           </div>
         )}
       </main>
