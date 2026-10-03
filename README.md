@@ -115,6 +115,7 @@ npm install
 Create a `.env` file inside the backend folder:
 
 ```env
+PORT=3000
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 ```
@@ -389,7 +390,3 @@ GitHub:
 https://github.com/Abhishekkumar2004/TaskManager
 ```
 
----
-This project is open-source and available under the MIT License.
-
-⭐ If you like this project, consider giving it a star!
