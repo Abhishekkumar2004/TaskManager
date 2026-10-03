@@ -1,16 +1,34 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ClipboardPlus,
   FileText,
   AlignLeft,
   Check,
   Plus,
+  Pencil,
+  X,
 } from 'lucide-react';
 
-const TaskForm = ({ onSubmit }) => {
+const TaskForm = ({
+  onSubmit,
+  editingTask,
+  onCancelEdit,
+}) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [completed, setCompleted] = useState(false);
+
+  useEffect(() => {
+    if (editingTask) {
+      setTitle(editingTask.title || '');
+      setDescription(editingTask.description || '');
+      setCompleted(editingTask.completed || false);
+    } else {
+      setTitle('');
+      setDescription('');
+      setCompleted(false);
+    }
+  }, [editingTask]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -25,11 +43,22 @@ const TaskForm = ({ onSubmit }) => {
 
     onSubmit(taskData);
 
-    // Reset form
+    if (!editingTask) {
+      setTitle('');
+      setDescription('');
+      setCompleted(false);
+    }
+  };
+
+  const handleCancel = () => {
     setTitle('');
     setDescription('');
     setCompleted(false);
+
+    onCancelEdit();
   };
+
+  const isEditing = !!editingTask;
 
   return (
     <div
@@ -77,10 +106,17 @@ const TaskForm = ({ onSubmit }) => {
                        flex items-center justify-center
                        shadow-lg shadow-blue-500/25"
           >
-            <ClipboardPlus
-              size={22}
-              className="text-white"
-            />
+            {isEditing ? (
+              <Pencil
+                size={22}
+                className="text-white"
+              />
+            ) : (
+              <ClipboardPlus
+                size={22}
+                className="text-white"
+              />
+            )}
           </div>
 
           <div>
@@ -94,11 +130,13 @@ const TaskForm = ({ onSubmit }) => {
                          bg-clip-text
                          text-transparent"
             >
-              Create New Task
+              {isEditing ? 'Edit Task' : 'Create New Task'}
             </h2>
 
             <p className="text-sm text-slate-500 mt-1">
-              Add a new task to your list.
+              {isEditing
+                ? 'Update your task details.'
+                : 'Add a new task to your list.'}
             </p>
           </div>
         </div>
@@ -187,18 +225,20 @@ const TaskForm = ({ onSubmit }) => {
                         rounded-xl
                         border
                         px-4 py-3
-                        transition-all duration-200 ${completed
-                ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200'
-                : 'bg-slate-50/80 border-slate-200'
-              }`}
+                        transition-all duration-200 ${
+                          completed
+                            ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200'
+                            : 'bg-slate-50/80 border-slate-200'
+                        }`}
           >
             <div className="flex items-center gap-3">
               <div
                 className={`w-9 h-9 rounded-lg
-                            flex items-center justify-center ${completed
-                    ? 'bg-green-500 text-white'
-                    : 'bg-slate-200 text-slate-500'
-                  }`}
+                            flex items-center justify-center ${
+                              completed
+                                ? 'bg-green-500 text-white'
+                                : 'bg-slate-200 text-slate-500'
+                            }`}
               >
                 <Check size={18} />
               </div>
@@ -226,10 +266,11 @@ const TaskForm = ({ onSubmit }) => {
                           rounded-full
                           transition-all duration-300
                           focus:outline-none
-                          focus:ring-4 focus:ring-green-500/20 ${completed
-                  ? 'bg-gradient-to-r from-green-500 to-emerald-600'
-                  : 'bg-slate-300'
-                }`}
+                          focus:ring-4 focus:ring-green-500/20 ${
+                            completed
+                              ? 'bg-gradient-to-r from-green-500 to-emerald-600'
+                              : 'bg-slate-300'
+                          }`}
             >
               <span
                 className={`absolute
@@ -239,45 +280,79 @@ const TaskForm = ({ onSubmit }) => {
                             bg-white
                             rounded-full
                             shadow-md
-                            transition-transform duration-300 ${completed
-                    ? 'translate-x-7'
-                    : 'translate-x-1'
-                  }`}
+                            transition-transform duration-300 ${
+                              completed
+                                ? 'translate-x-7'
+                                : 'translate-x-1'
+                            }`}
               />
             </button>
           </div>
 
-          {/* Submit */}
-          <button
-            type="submit"
-            className="group w-full
-                       flex items-center justify-center gap-2
-                       py-3.5 px-6
-                       rounded-xl
-                       font-semibold
-                       text-white
-                       bg-gradient-to-r
-                       from-blue-600
-                       via-indigo-600
-                       to-purple-600
-                       shadow-lg
-                       shadow-blue-500/25
-                       hover:shadow-xl
-                       hover:shadow-indigo-500/30
-                       hover:-translate-y-0.5
-                       active:scale-[0.98]
-                       focus:outline-none
-                       focus:ring-4
-                       focus:ring-blue-500/20
-                       transition-all duration-200"
-          >
-            <Plus
-              size={19}
-              className="group-hover:rotate-90 transition-transform duration-200"
-            />
+          {/* Buttons */}
+          <div className="flex gap-3">
 
-            Create Task
-          </button>
+            {/* Cancel */}
+            {isEditing && (
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="flex-1
+                           flex items-center justify-center gap-2
+                           py-3.5 px-6
+                           rounded-xl
+                           font-semibold
+                           text-slate-600
+                           bg-slate-100
+                           hover:bg-slate-200
+                           active:scale-[0.98]
+                           transition-all duration-200"
+              >
+                <X size={19} />
+                Cancel
+              </button>
+            )}
+
+            {/* Submit */}
+            <button
+              type="submit"
+              className="group flex-1
+                         flex items-center justify-center gap-2
+                         py-3.5 px-6
+                         rounded-xl
+                         font-semibold
+                         text-white
+                         bg-gradient-to-r
+                         from-blue-600
+                         via-indigo-600
+                         to-purple-600
+                         shadow-lg
+                         shadow-blue-500/25
+                         hover:shadow-xl
+                         hover:shadow-indigo-500/30
+                         hover:-translate-y-0.5
+                         active:scale-[0.98]
+                         focus:outline-none
+                         focus:ring-4
+                         focus:ring-blue-500/20
+                         transition-all duration-200"
+            >
+              {isEditing ? (
+                <>
+                  <Pencil size={19} />
+                  Update Task
+                </>
+              ) : (
+                <>
+                  <Plus
+                    size={19}
+                    className="group-hover:rotate-90 transition-transform duration-200"
+                  />
+                  Create Task
+                </>
+              )}
+            </button>
+          </div>
 
         </form>
       </div>

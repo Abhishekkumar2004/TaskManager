@@ -5,9 +5,10 @@ import {
   ClipboardCheck,
   CalendarDays,
   Clock,
+  Pencil,
 } from 'lucide-react';
 
-const TaskCard = ({ task, onToggle, onDelete }) => {
+const TaskCard = ({ task, onToggle, onDelete, onEdit }) => {
   // Format created date and time
   const createdDate = task.createdAt
     ? new Date(task.createdAt).toLocaleDateString('en-IN', {
@@ -52,6 +53,7 @@ const TaskCard = ({ task, onToggle, onDelete }) => {
 
       {/* Top section */}
       <div className="flex items-start gap-3">
+
         {/* Checkbox */}
         <button
           type="button"
@@ -102,23 +104,44 @@ const TaskCard = ({ task, onToggle, onDelete }) => {
           </div>
         </div>
 
-        {/* Delete */}
-        <button
-          type="button"
-          onClick={() => onDelete(task._id)}
-          title="Delete task"
-          className="shrink-0
-                     p-2
-                     rounded-xl
-                     text-red-500
-                     bg-red-50
-                     hover:bg-red-100
-                     hover:text-red-600
-                     active:scale-95
-                     transition-all duration-200"
-        >
-          <Trash2 size={16} />
-        </button>
+        {/* Actions */}
+        <div className="flex items-center gap-2 shrink-0">
+
+          {/* Edit */}
+          <button
+            type="button"
+            onClick={() => onEdit(task)}
+            title="Edit task"
+            className="p-2
+                       rounded-xl
+                       text-blue-500
+                       bg-blue-50
+                       hover:bg-blue-100
+                       hover:text-blue-600
+                       active:scale-95
+                       transition-all duration-200"
+          >
+            <Pencil size={16} />
+          </button>
+
+          {/* Delete */}
+          <button
+            type="button"
+            onClick={() => onDelete(task._id)}
+            title="Delete task"
+            className="p-2
+                       rounded-xl
+                       text-red-500
+                       bg-red-50
+                       hover:bg-red-100
+                       hover:text-red-600
+                       active:scale-95
+                       transition-all duration-200"
+          >
+            <Trash2 size={16} />
+          </button>
+
+        </div>
       </div>
 
       {/* Description */}
@@ -136,6 +159,7 @@ const TaskCard = ({ task, onToggle, onDelete }) => {
 
       {/* Bottom section */}
       <div className="mt-auto pt-5">
+
         {/* Status */}
         <span
           className={`inline-flex items-center gap-1.5

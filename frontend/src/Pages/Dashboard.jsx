@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+
 import {
   ClipboardList,
   Clock3,
@@ -8,6 +9,7 @@ import {
   AlertCircle,
   TrendingUp,
 } from 'lucide-react';
+
 import toast from 'react-hot-toast';
 
 import TaskForm from '../components/TaskForm';
@@ -29,10 +31,12 @@ const Dashboard = () => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [editingTask, setEditingTask] = useState(null);
 
   // =========================
   // Load Tasks
   // =========================
+
   const loadTasks = async () => {
     try {
       setLoading(true);
@@ -63,6 +67,7 @@ const Dashboard = () => {
   // =========================
   // Create Task
   // =========================
+
   const handleCreateTask = async (taskData) => {
     try {
       setError('');
@@ -90,8 +95,9 @@ const Dashboard = () => {
   };
 
   // =========================
-  // Update Task
+  // Update Task Status
   // =========================
+
   const handleToggleTask = async (id) => {
     try {
       setError('');
@@ -134,8 +140,60 @@ const Dashboard = () => {
   };
 
   // =========================
+  // Edit Task
+  // =========================
+
+  const handleEditTask = (task) => {
+    setEditingTask(task);
+
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  };
+
+  // =========================
+  // Update Task
+  // =========================
+
+  const handleUpdateTask = async (taskData) => {
+    try {
+      setError('');
+
+      const updatedTask = await updateTask(
+        editingTask._id,
+        taskData
+      );
+
+      setTasks((prevTasks) =>
+        prevTasks.map((task) =>
+          task._id === editingTask._id
+            ? updatedTask
+            : task
+        )
+      );
+
+      setEditingTask(null);
+
+      toast.success(
+        'Task updated successfully! ✏️'
+      );
+    } catch (error) {
+      console.error(error);
+
+      const message =
+        error.response?.data?.message ||
+        'Failed to update task.';
+
+      setError(message);
+      toast.error(message);
+    }
+  };
+
+  // =========================
   // Delete Task
   // =========================
+
   const handleDeleteTask = async (id) => {
     try {
       setError('');
@@ -147,6 +205,10 @@ const Dashboard = () => {
           (task) => task._id !== id
         )
       );
+
+      if (editingTask?._id === id) {
+        setEditingTask(null);
+      }
 
       toast.success(
         'Task deleted successfully! 🗑️'
@@ -166,6 +228,7 @@ const Dashboard = () => {
   // =========================
   // Statistics
   // =========================
+
   const completedTasks = tasks.filter(
     (task) => task.completed
   ).length;
@@ -179,8 +242,8 @@ const Dashboard = () => {
   const completionPercentage =
     totalTasks > 0
       ? Math.round(
-          (completedTasks / totalTasks) * 100
-        )
+        (completedTasks / totalTasks) * 100
+      )
       : 0;
 
   return (
@@ -193,6 +256,7 @@ const Dashboard = () => {
                  to-indigo-50/50"
     >
       {/* Background decoration */}
+
       <div
         className="absolute -top-40 -right-40
                    w-96 h-96
@@ -220,6 +284,7 @@ const Dashboard = () => {
         {/* =========================
             Welcome
         ========================= */}
+
         <div className="mb-8">
           <div
             className="inline-flex items-center gap-2
@@ -270,6 +335,7 @@ const Dashboard = () => {
         {/* =========================
             Error
         ========================= */}
+
         {error && (
           <div
             className="mb-6
@@ -294,12 +360,14 @@ const Dashboard = () => {
         {/* =========================
             Statistics
         ========================= */}
+
         <div
           className="grid grid-cols-1
                      sm:grid-cols-3
                      gap-4 mb-8"
         >
           {/* Total */}
+
           <div
             className="relative overflow-hidden
                        bg-white/90
@@ -348,6 +416,7 @@ const Dashboard = () => {
           </div>
 
           {/* Pending */}
+
           <div
             className="relative overflow-hidden
                        bg-white/90
@@ -395,6 +464,7 @@ const Dashboard = () => {
           </div>
 
           {/* Completed */}
+
           <div
             className="relative overflow-hidden
                        bg-white/90
@@ -445,6 +515,7 @@ const Dashboard = () => {
         {/* =========================
             Progress
         ========================= */}
+
         <div
           className="mb-8
                      bg-white/90
@@ -497,17 +568,25 @@ const Dashboard = () => {
         </div>
 
         {/* =========================
-            Create Task
+            Create / Edit Task
         ========================= */}
+
         <div className="mb-8">
           <TaskForm
-            onSubmit={handleCreateTask}
+            onSubmit={
+              editingTask
+                ? handleUpdateTask
+                : handleCreateTask
+            }
+            editingTask={editingTask}
+            onCancelEdit={() => setEditingTask(null)}
           />
         </div>
 
         {/* =========================
             Task List
         ========================= */}
+
         <div
           className="bg-white/90
                      backdrop-blur-xl
@@ -546,11 +625,10 @@ const Dashboard = () => {
                 <p className="text-sm text-slate-500">
                   {tasks.length === 0
                     ? 'You have no tasks yet.'
-                    : `${tasks.length} ${
-                        tasks.length === 1
-                          ? 'task'
-                          : 'tasks'
-                      } in your list.`}
+                    : `${tasks.length} ${tasks.length === 1
+                      ? 'task'
+                      : 'tasks'
+                    } in your list.`}
                 </p>
               </div>
             </div>
@@ -578,9 +656,11 @@ const Dashboard = () => {
           </div>
 
           {/* Loading */}
+
           {loading && <Loading />}
 
           {/* Empty */}
+
           {!loading && tasks.length === 0 && (
             <div
               className="text-center py-12
@@ -619,6 +699,7 @@ const Dashboard = () => {
           )}
 
           {/* Task Cards */}
+
           {!loading && tasks.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {tasks.map((task) => (
@@ -626,6 +707,7 @@ const Dashboard = () => {
                   key={task._id}
                   task={task}
                   onToggle={handleToggleTask}
+                  onEdit={handleEditTask}
                   onDelete={handleDeleteTask}
                 />
               ))}
