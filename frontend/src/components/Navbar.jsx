@@ -95,7 +95,7 @@ const Navbar = () => {
                          bg-clip-text
                          text-transparent"
             >
-              MyApp
+              Task Manager
             </span>
           </Link>
 
