@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import {
   ClipboardList,
@@ -27,6 +28,7 @@ import {
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -191,6 +193,14 @@ const Dashboard = () => {
   };
 
   // =========================
+  // View Task
+  // =========================
+
+  const handleViewTask = (id) => {
+    navigate(`/tasks/${id}`);
+  };
+
+  // =========================
   // Delete Task
   // =========================
 
@@ -242,8 +252,8 @@ const Dashboard = () => {
   const completionPercentage =
     totalTasks > 0
       ? Math.round(
-        (completedTasks / totalTasks) * 100
-      )
+          (completedTasks / totalTasks) * 100
+        )
       : 0;
 
   return (
@@ -625,10 +635,11 @@ const Dashboard = () => {
                 <p className="text-sm text-slate-500">
                   {tasks.length === 0
                     ? 'You have no tasks yet.'
-                    : `${tasks.length} ${tasks.length === 1
-                      ? 'task'
-                      : 'tasks'
-                    } in your list.`}
+                    : `${tasks.length} ${
+                        tasks.length === 1
+                          ? 'task'
+                          : 'tasks'
+                      } in your list.`}
                 </p>
               </div>
             </div>
@@ -708,6 +719,7 @@ const Dashboard = () => {
                   task={task}
                   onToggle={handleToggleTask}
                   onEdit={handleEditTask}
+                  onView={handleViewTask}
                   onDelete={handleDeleteTask}
                 />
               ))}

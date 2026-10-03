@@ -6,6 +6,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Dashboard from './Pages/Dashboard';
 import Login from './Pages/Login';
 import Register from './Pages/Register';
+import TaskDetails from './Pages/TaskDetails';
 import NotFound from './Pages/NotFound';
 
 const App = () => {
@@ -30,6 +31,11 @@ const App = () => {
           <Route
             path="/"
             element={<Dashboard />}
+          />
+
+          <Route
+            path="/tasks/:id"
+            element={<TaskDetails />}
           />
         </Route>
 

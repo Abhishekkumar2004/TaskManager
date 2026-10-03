@@ -6,9 +6,16 @@ import {
   CalendarDays,
   Clock,
   Pencil,
+  Eye,
 } from 'lucide-react';
 
-const TaskCard = ({ task, onToggle, onDelete, onEdit }) => {
+const TaskCard = ({
+  task,
+  onToggle,
+  onDelete,
+  onEdit,
+  onView,
+}) => {
   // Format created date and time
   const createdDate = task.createdAt
     ? new Date(task.createdAt).toLocaleDateString('en-IN', {
@@ -106,6 +113,23 @@ const TaskCard = ({ task, onToggle, onDelete, onEdit }) => {
 
         {/* Actions */}
         <div className="flex items-center gap-2 shrink-0">
+
+          {/* View */}
+          <button
+            type="button"
+            onClick={() => onView(task._id)}
+            title="View task"
+            className="p-2
+                       rounded-xl
+                       text-slate-500
+                       bg-slate-50
+                       hover:bg-slate-100
+                       hover:text-slate-700
+                       active:scale-95
+                       transition-all duration-200"
+          >
+            <Eye size={16} />
+          </button>
 
           {/* Edit */}
           <button
